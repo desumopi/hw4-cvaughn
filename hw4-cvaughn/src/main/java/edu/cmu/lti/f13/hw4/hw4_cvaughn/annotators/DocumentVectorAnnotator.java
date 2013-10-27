@@ -30,14 +30,15 @@ public class DocumentVectorAnnotator extends JCasAnnotator_ImplBase {
 			iter.moveToNext();
 			Document doc = (Document) iter.get();
 			createTermFreqVector(jcas, doc);
-			System.out.println();
-			System.out.println(doc.getText());
-			System.out.println();
+			//System.out.println();
+			//System.out.println(doc.getText());
+			//System.out.println();
 			FSList fsOut = doc.getTokenList();
-			ArrayList alOut = Utils.fromFSListToCollection(fsOut, fsOut.getClass());
-			for (int j=0; j<alOut.size(); j++) {
-			  System.out.println(alOut.get(j).toString());
-			}
+			//ArrayList<Token> alOut = Utils.fromFSListToCollection(fsOut, Token.class);
+			//for (int j=0; j<alOut.size(); j++) {
+			  //System.out.println(((Token) alOut.get(j)).getText());
+			  //System.out.println(j);
+			//}
 		}
 
 	}
@@ -75,6 +76,10 @@ public class DocumentVectorAnnotator extends JCasAnnotator_ImplBase {
       
       pos = matcher.end();
     }
+    
+    //for (int j=0; j<alTok.size(); j++) {
+      //System.out.println(alTok.get(j).toString());
+    //}
     
     FSList fslTok = Utils.fromCollectionToFSList(jcas, alTok);
     fslTok.addToIndexes();
