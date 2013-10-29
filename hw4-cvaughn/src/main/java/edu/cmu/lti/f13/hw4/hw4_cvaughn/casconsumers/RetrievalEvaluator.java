@@ -76,6 +76,7 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 		  docIndex++;
 			System.out.println("docIndex = "+docIndex);
 			System.out.println(doc.getText());
+			System.out.println();
 			
 			Integer[] things = new Integer[3];
 			things[0] = doc.getRelevanceValue();
@@ -139,6 +140,9 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 
 		super.collectionProcessComplete(arg0);
 		
+		int Qsize = 0;
+		ArrayList<Integer> ranks = new ArrayList<Integer>();
+		
 		for (int d=0; d<Dsize; d+=4) {
 		  ArrayList<Double> Q = new ArrayList<Double>();
 		  ArrayList<Double> A = new ArrayList<Double>();
@@ -182,83 +186,86 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 		  denom2A = Math.sqrt(denom2A);
 		  double cosSimA = numerA/(denom1A + denom2A);
 		  
-		  
 		  denom1B = Math.sqrt(denom1B);
       denom2B = Math.sqrt(denom2B);
       double cosSimB = numerB/(denom1B + denom2B);
-      
       
       denom1C = Math.sqrt(denom1C);
       denom2C = Math.sqrt(denom2C);
       double cosSimC = numerC/(denom1C + denom2C);
       
+      
+      // Compute the rank of retrieved sentences:
+      
       int rankA = 0;
-      
-      System.out.println();
-      System.out.println("Score: " + cosSimA + " rank=" + rankA + " rel=" + metaDict.get(d+1)[0] + " qid=" + metaDict.get(d+1)[1] + " sent" + metaDict.get(d+1)[2]);
-      
       int rankB = 0;
-      
-      System.out.println();
-      System.out.println("Score: " + cosSimB + " rank=" + rankB + " rel=" + metaDict.get(d+2)[0] + " qid=" + metaDict.get(d+2)[1] + " sent" + metaDict.get(d+2)[2]);
-      
-      
       int rankC = 0;
       
-      System.out.println();
-      System.out.println("Score: " + cosSimC + " rank=" + rankC + " rel=" + metaDict.get(d+3)[0] + " qid=" + metaDict.get(d+3)[1] + " sent" + metaDict.get(d+3)[2]);
+      if (cosSimA > cosSimB && cosSimA > cosSimC) {
+        rankA = 1;
+        if (cosSimB > cosSimC) {
+          rankB = 2;
+          rankC = 3;
+        } else {
+          rankC = 2;
+          rankB = 3;
+        }
+      }
+      if (cosSimB > cosSimA && cosSimB > cosSimC) {
+        rankB = 1;
+        if (cosSimA > cosSimC) {
+          rankA = 2;
+          rankC = 3;
+        } else {
+          rankC = 2;
+          rankA = 3;
+        }
+      }
+      if (cosSimC > cosSimB && cosSimC > cosSimA) {
+        rankC = 1;
+        if (cosSimB > cosSimA) {
+          rankB = 2;
+          rankA = 3;
+        } else {
+          rankA = 2;
+          rankB = 3;
+        }
+      }
       
-
-      
-      
+      Qsize += 1;
+      if (metaDict.get(d+1)[0]==1) {
+        ranks.add(rankA);
+        System.out.println("Score: " + cosSimA + " rank=" + rankA + " rel=" + metaDict.get(d+1)[0] + " qid=" + metaDict.get(d+1)[1] + " sent" + metaDict.get(d+1)[2]);
+        System.out.println();
+      } else if (metaDict.get(d+2)[0]==1) {
+        ranks.add(rankB);
+        System.out.println("Score: " + cosSimB + " rank=" + rankB + " rel=" + metaDict.get(d+2)[0] + " qid=" + metaDict.get(d+2)[1] + " sent" + metaDict.get(d+2)[2]);
+        System.out.println();
+      } else if (metaDict.get(d+3)[0]==1) {
+        ranks.add(rankC);
+        System.out.println("Score: " + cosSimC + " rank=" + rankC + " rel=" + metaDict.get(d+3)[0] + " qid=" + metaDict.get(d+3)[1] + " sent" + metaDict.get(d+3)[2]);
+        System.out.println();
+      } else {
+        System.out.println("ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR");
+      }
 		}
-
 		
+		// Compute the metric: mean reciprocal rank
+    double metric_mrr = 0.0;
+    for (int i=0; i<ranks.size(); i++) {
+      metric_mrr += 1.0/(double)ranks.get(i);
+    }
+    metric_mrr = metric_mrr*(1.0/(double)Qsize);
+    System.out.println(" (MRR) Mean Reciprocal Rank ::" + metric_mrr);
 		
-		
-		// TODO :: compute the rank of retrieved sentences
-		
-		
-		//System.out.println(dictionary.toString());
-		
+    /*
 		//Troubleshooting: print metaDict:
 		for (int a=0; a<metaDict.size(); a++) {
 		  for (int b=0; b<3; b++) {
 		    System.out.print(" " + metaDict.get(a)[b] + " ");
 		  }
 		  System.out.println();
- 		}
+ 		}*/
 		
-		
-		// TODO :: compute the metric:: mean reciprocal rank
-		double metric_mrr = compute_mrr();
-		System.out.println(" (MRR) Mean Reciprocal Rank ::" + metric_mrr);
 	}
-
-	/**
-	 * 
-	 * @return cosine_similarity
-	 */
-	private double computeCosineSimilarity(Map<String, Integer> queryVector,
-			Map<String, Integer> docVector) {
-		double cosine_similarity=0.0;
-
-		// TODO :: compute cosine similarity between two sentences
-		
-
-		return cosine_similarity;
-	}
-
-	/**
-	 * 
-	 * @return mrr
-	 */
-	private double compute_mrr() {
-		double metric_mrr=0.0;
-
-		// TODO :: compute Mean Reciprocal Rank (MRR) of the text collection
-		
-		return metric_mrr;
-	}
-
 }
