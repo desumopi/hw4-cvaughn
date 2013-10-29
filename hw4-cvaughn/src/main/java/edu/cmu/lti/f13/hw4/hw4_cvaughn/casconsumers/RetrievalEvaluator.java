@@ -30,6 +30,8 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 
 	private HashMap<String, ArrayList<Double>> dictionary;
 	
+	private HashMap<String, Integer> numDocs;
+	
 	private ArrayList<Integer[]> metaDict;
 	
 	private int docIndex = -1;
@@ -45,6 +47,8 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 		dictionary = new HashMap<String, ArrayList<Double>>();
 		
 		metaDict = new ArrayList<Integer[]>();
+		
+		numDocs = new HashMap<String, Integer>();
 
 	}
 
@@ -125,6 +129,19 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 		  for (int x = alDoub.size(); x <= Dsize; x++) {
 		    alDoub.add(0.0);
 		  }
+		  for (int y = 0; y <= Dsize; y++) {
+		    if (alDoub.get(y) > 0.0) {
+		      if (numDocs.containsKey(str)) {
+		        numDocs.put(str, numDocs.get(str) + 1);
+		      } else {
+		        numDocs.put(str, 1);
+		      }
+		    }
+		  }/*
+		  for (int z = 0; z <= Dsize; z++) {
+		    double tfidf = alDoub.get(z)*(Math.log((Dsize+1)/numDocs));
+		    alDoub.set(z, tfidf);
+		  }*/
 		  dictionary.put(str, alDoub);
 		}
 		
@@ -155,6 +172,27 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 		    B.add(dictionary.get(str).get(d+2));
 		    C.add(dictionary.get(str).get(d+3));
 		  }
+		  
+		  for (String str : numDocs.keySet()) {
+		    for (int z = 0; z <Dsize; z+=4) {
+		      double tfidfQ = Q.get(z)*(Math.log((Dsize+1)/numDocs.get(str)));
+		      double tfidfA = A.get(z+1)*(Math.log((Dsize+1)/numDocs.get(str)));
+		      double tfidfB = B.get(z+2)*(Math.log((Dsize+1)/numDocs.get(str)));
+		      double tfidfC = C.get(z+3)*(Math.log((Dsize+1)/numDocs.get(str)));
+		    }
+      }
+		  
+		  /*
+      int numDocs = 0;
+      for (int y = 0; y <= Dsize; y++) {
+        if (alDoub.get(y) > 0.0) {
+          numDocs++;
+        }
+      }
+      for (int z = 0; z <= Dsize; z++) {
+        double tfidf = alDoub.get(z)*(Math.log((Dsize+1)/numDocs));
+        alDoub.set(z, tfidf);
+      }*/
 		  
 		  // Compute the cosine similarity measure:
 		  double numerA = 0.0;
