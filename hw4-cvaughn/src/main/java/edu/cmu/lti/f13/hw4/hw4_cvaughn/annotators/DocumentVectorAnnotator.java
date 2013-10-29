@@ -18,11 +18,21 @@ import edu.cmu.lti.f13.hw4.hw4_cvaughn.utils.Utils;
 
 import java.util.*;
 
+/**
+ * 
+ * @author Callie Vaughn (cvaughn)
+ *
+ */
+
 public class DocumentVectorAnnotator extends JCasAnnotator_ImplBase {
 
   private Pattern tokenPattern = Pattern.compile("[a-zA-Z0-9']+");
 
-	@Override
+	/**
+	 * Populates the FSList of Tokens in each document in jcas.
+	 * 
+	 * @param jcas - The JCas that stores information about the documents
+	 */
 	public void process(JCas jcas) throws AnalysisEngineProcessException {
 
 		FSIterator<Annotation> iter = jcas.getAnnotationIndex().iterator();
@@ -42,10 +52,14 @@ public class DocumentVectorAnnotator extends JCasAnnotator_ImplBase {
 		}
 
 	}
+	
+	
 	/**
+	 * Constructs a vector of tokens (text and frequencies) from the document
+	 * doc and stores that vector as an FSList of Tokens in the CAS jcas
 	 * 
-	 * @param jcas
-	 * @param doc
+	 * @param jcas - the JCas that we are storing this in
+	 * @param doc - the current document
 	 */
 
 	private void createTermFreqVector(JCas jcas, Document doc) {
@@ -82,6 +96,7 @@ public class DocumentVectorAnnotator extends JCasAnnotator_ImplBase {
     //}
     
     FSList fslTok = Utils.fromCollectionToFSList(jcas, alTok);
+    doc.setTokenList(fslTok);
     fslTok.addToIndexes();
 
 	}

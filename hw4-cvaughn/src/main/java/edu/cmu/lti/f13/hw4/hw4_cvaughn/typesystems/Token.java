@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Sun Oct 27 17:59:56 EDT 2013
- * XML source: /home/callie/git/hw4-cvaughn/hw4-cvaughn/src/main/resources/descriptors/retrievalsystem/VectorSpaceRetrieval.xml
+ * Updated by JCasGen Mon Oct 28 20:41:55 EDT 2013
+ * XML source: /home/callie/git/hw4-cvaughn/hw4-cvaughn/src/main/resources/descriptors/retrievalsystem/RetrievalEvaluator.xml
  * @generated */
 public class Token extends Annotation {
   /** @generated
