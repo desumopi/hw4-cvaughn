@@ -30,12 +30,12 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 
 	private HashMap<String, ArrayList<Double>> dictionary;
 	
+	private ArrayList<Integer[]> metaDict;
+	
 	private int docIndex = -1;
 	
-	//private ArrayList<String> termList;
+	private int Dsize;
 	
-	//private ArrayList<ArrayList<Double>> freqArray;
-		
 	public void initialize() throws ResourceInitializationException {
 
 		qIdList = new ArrayList<Integer>();
@@ -43,6 +43,8 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 		relList = new ArrayList<Integer>();
 		
 		dictionary = new HashMap<String, ArrayList<Double>>();
+		
+		metaDict = new ArrayList<Integer[]>();
 
 	}
 
@@ -66,20 +68,30 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 
 		FSIterator it = jcas.getAnnotationIndex(Document.type).iterator();
 		
+		int sentID = 1;
+		int prevQID = -5;
+		
 		if (it.hasNext()) {
-			Document doc = (Document) it.next();
-			docIndex++;
+		  Document doc = (Document) it.next();
+		  docIndex++;
 			System.out.println("docIndex = "+docIndex);
 			System.out.println(doc.getText());
 			
+			Integer[] things = new Integer[3];
+			things[0] = doc.getRelevanceValue();
+			things[1] = doc.getQueryID();
+			if (doc.getQueryID()==prevQID) {
+			  sentID++;
+			}
+			things[2] = sentID;
+			metaDict.add(things);
 			//Make sure that your previous annotators have populated this in CAS
 			FSList fsTokenList = doc.getTokenList();
 			ArrayList<Token>tokenList=Utils.fromFSListToCollection(fsTokenList, Token.class);
 
 			qIdList.add(doc.getQueryID());
 			relList.add(doc.getRelevanceValue());
-			
-			boolean b = false;
+
 			for (int i = 0; i < tokenList.size(); i++) {
 			  ArrayList<Double> value;
 			  String tokStr = tokenList.get(i).getText();
@@ -104,6 +116,17 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
         dictionary.put(tokenList.get(i).getText(), value);
 			}
 		}
+		
+		Dsize = docIndex;
+		
+		for (String str : dictionary.keySet()) {
+		  ArrayList<Double> alDoub = dictionary.get(str);
+		  for (int x = alDoub.size(); x <= Dsize; x++) {
+		    alDoub.add(0.0);
+		  }
+		  dictionary.put(str, alDoub);
+		}
+		
 	}
 
 	/**
@@ -115,15 +138,97 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
 			throws ResourceProcessException, IOException {
 
 		super.collectionProcessComplete(arg0);
+		
+		for (int d=0; d<Dsize; d+=4) {
+		  ArrayList<Double> Q = new ArrayList<Double>();
+		  ArrayList<Double> A = new ArrayList<Double>();
+		  ArrayList<Double> B = new ArrayList<Double>();
+		  ArrayList<Double> C = new ArrayList<Double>();
+		  
+		  for (String str : dictionary.keySet()) {
+		    Q.add(dictionary.get(str).get(d));
+		    A.add(dictionary.get(str).get(d+1));
+		    B.add(dictionary.get(str).get(d+2));
+		    C.add(dictionary.get(str).get(d+3));
+		  }
+		  
+		  // Compute the cosine similarity measure:
+		  double numerA = 0.0;
+		  double denom1A = 0.0;
+		  double denom2A = 0.0;
+		  
+		  double numerB = 0.0;
+      double denom1B = 0.0;
+      double denom2B = 0.0;
+      
+      double numerC = 0.0;
+      double denom1C = 0.0;
+      double denom2C = 0.0;
+		  for (int i=0; i<Q.size(); i++) {
+		    numerA += (Q.get(i)*A.get(i));
+		    denom1A += (Q.get(i)*Q.get(i));
+		    denom2A += (A.get(i)*A.get(i));
+		    
+		    numerB += (Q.get(i)*B.get(i));
+        denom1B += (Q.get(i)*Q.get(i));
+        denom2B += (B.get(i)*B.get(i));
+        
+        numerC += (Q.get(i)*C.get(i));
+        denom1C += (Q.get(i)*Q.get(i));
+        denom2C += (C.get(i)*C.get(i));
+		  }
+		  
+		  denom1A = Math.sqrt(denom1A);
+		  denom2A = Math.sqrt(denom2A);
+		  double cosSimA = numerA/(denom1A + denom2A);
+		  
+		  
+		  denom1B = Math.sqrt(denom1B);
+      denom2B = Math.sqrt(denom2B);
+      double cosSimB = numerB/(denom1B + denom2B);
+      
+      
+      denom1C = Math.sqrt(denom1C);
+      denom2C = Math.sqrt(denom2C);
+      double cosSimC = numerC/(denom1C + denom2C);
+      
+      int rankA = 0;
+      
+      System.out.println();
+      System.out.println("Score: " + cosSimA + " rank=" + rankA + " rel=" + metaDict.get(d+1)[0] + " qid=" + metaDict.get(d+1)[1] + " sent" + metaDict.get(d+1)[2]);
+      
+      int rankB = 0;
+      
+      System.out.println();
+      System.out.println("Score: " + cosSimB + " rank=" + rankB + " rel=" + metaDict.get(d+2)[0] + " qid=" + metaDict.get(d+2)[1] + " sent" + metaDict.get(d+2)[2]);
+      
+      
+      int rankC = 0;
+      
+      System.out.println();
+      System.out.println("Score: " + cosSimC + " rank=" + rankC + " rel=" + metaDict.get(d+3)[0] + " qid=" + metaDict.get(d+3)[1] + " sent" + metaDict.get(d+3)[2]);
+      
 
-		// TODO :: compute the cosine similarity measure
+      
+      
+		}
+
 		
 		
 		
 		// TODO :: compute the rank of retrieved sentences
 		
 		
-		System.out.println(dictionary.toString());
+		//System.out.println(dictionary.toString());
+		
+		//Troubleshooting: print metaDict:
+		for (int a=0; a<metaDict.size(); a++) {
+		  for (int b=0; b<3; b++) {
+		    System.out.print(" " + metaDict.get(a)[b] + " ");
+		  }
+		  System.out.println();
+ 		}
+		
 		
 		// TODO :: compute the metric:: mean reciprocal rank
 		double metric_mrr = compute_mrr();
