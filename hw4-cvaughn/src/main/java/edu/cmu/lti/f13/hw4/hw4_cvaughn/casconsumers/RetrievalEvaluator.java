@@ -235,15 +235,15 @@ public class RetrievalEvaluator extends CasConsumer_ImplBase {
       Qsize += 1;
       if (metaDict.get(d+1)[0]==1) {
         ranks.add(rankA);
-        System.out.println("Score: " + cosSimA + " rank=" + rankA + " rel=" + metaDict.get(d+1)[0] + " qid=" + metaDict.get(d+1)[1] + " sent" + metaDict.get(d+1)[2]);
+        System.out.println("Score: " + cosSimA + " rank=" + rankA + " rel=" + metaDict.get(d+1)[0] + " qid=" + metaDict.get(d+1)[1] + " sent1");
         System.out.println();
       } else if (metaDict.get(d+2)[0]==1) {
         ranks.add(rankB);
-        System.out.println("Score: " + cosSimB + " rank=" + rankB + " rel=" + metaDict.get(d+2)[0] + " qid=" + metaDict.get(d+2)[1] + " sent" + metaDict.get(d+2)[2]);
+        System.out.println("Score: " + cosSimB + " rank=" + rankB + " rel=" + metaDict.get(d+2)[0] + " qid=" + metaDict.get(d+2)[1] + " sent2");
         System.out.println();
       } else if (metaDict.get(d+3)[0]==1) {
         ranks.add(rankC);
-        System.out.println("Score: " + cosSimC + " rank=" + rankC + " rel=" + metaDict.get(d+3)[0] + " qid=" + metaDict.get(d+3)[1] + " sent" + metaDict.get(d+3)[2]);
+        System.out.println("Score: " + cosSimC + " rank=" + rankC + " rel=" + metaDict.get(d+3)[0] + " qid=" + metaDict.get(d+3)[1] + " sent3");
         System.out.println();
       } else {
         System.out.println("ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR");

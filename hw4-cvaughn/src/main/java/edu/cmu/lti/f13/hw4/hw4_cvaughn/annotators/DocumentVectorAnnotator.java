@@ -64,7 +64,7 @@ public class DocumentVectorAnnotator extends JCasAnnotator_ImplBase {
 
 	private void createTermFreqVector(JCas jcas, Document doc) {
 
-		String docText = doc.getText();
+		String docText = doc.getText().toLowerCase();
 		
 		//Construct a vector of tokens and update the tokenList in CAS
 		Matcher matcher = tokenPattern.matcher(docText);
